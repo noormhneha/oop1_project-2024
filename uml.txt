@@ -1,0 +1,327 @@
+@startuml
+
+class Controller {
+  Controller()
+  ~Controller()
+  
+  runGame()
+  startTheGame()
+  handleMainEvents()
+  handleLevelEvents()
+  levelEnded(const Board& board, int levelNum)
+  buttonReleased(sf::Event)
+  openLevel()
+  gameStory()
+  openInformation()
+  levelsInGame(std::string str)
+  checkCollision(Movable* character, Direction direction, Board& board)
+  stopCat()
+  moveMovable(float passedTime, Board& board)
+  catchMouse(Cat* cat)
+  returnStartingPosition()
+  isMouseDied()
+  movableDraw(float passedTime)
+  
+  bool m_mainPage
+  bool m_newGame
+  bool m_scoreTable
+  bool m_mute
+  bool m_information
+  bool m_storyShowed
+  bool m_nowMove
+  
+  sf::RenderWindow m_window
+  sf::RenderWindow m_levelWindow
+  Screens m_screens
+  Mouse m_mouse
+  std::vector<std::unique_ptr<Cat>> m_cats
+  LevelStatus m_player
+  int m_gameTime
+  int m_count_levels
+}
+
+class Utilities {
+    Utilities()
+    getCharactersTexture(shape: size_t): sf::Texture*
+    getLifeTexture(): sf::Texture*
+    instance(): Utilities&
+    iconNames(str: std::string): void
+    checkIfValid(inputFile: std::ifstream&): void
+    m_CharactersTexture: std::vector<sf::Texture>
+    m_lifeCounter: sf::Texture
+    m_levels: std::vector<std::string>
+}
+
+class Screens {
+    Screens()
+    drawBackground(window: sf::RenderWindow&): void
+    drawStarterSection(window: sf::RenderWindow&): void
+    drawSoundButton(window: sf::RenderWindow&, soundOn: bool): void
+    drawInformation(window: sf::RenderWindow&): void
+    drawStory(window: sf::RenderWindow&, index: unsigned int, timer: float, state: int): void
+    drawInfoButton(window: sf::RenderWindow&): void
+    playPauseSound(index: int, play: bool): void
+    checkButtons(x: int, y: int): Buttons
+    OpeningBackground(window: sf::RenderWindow&): void
+    getFont(): sf::Font
+    drawStarter(window: sf::RenderWindow&, spriteIndex: int): void
+    createText(text: const std::string&, font: const sf::Font&, size: unsigned int): sf::Text
+    drawTextInStarter(text: sf::Text&, window: sf::RenderWindow&, index: int): void
+    setBackground(): void
+    setCounters(): void
+    setOpeningGame(): void
+    setMenu(): void
+    setInformation(): void
+    setSoundTexture(): void
+    setSoundBuffers(): void
+    setStory(): void
+    m_countersTexture: sf::Texture[5]
+    m_countersSprite: sf::Sprite[5]
+    m_backgroundTexture: sf::Texture
+    m_backgroundSprite: sf::Sprite
+    m_startTheGame: sf::Texture
+    m_startTheGameSprite: sf::Sprite
+    m_newGameText: sf::Text
+    m_tableText: sf::Text
+    m_exitText: sf::Text
+    m_informationTextStr: std::string
+    m_informationText: sf::Text
+    m_soundOn: sf::Texture
+    m_soundOff: sf::Texture
+    m_soundOnSprite: sf::Sprite
+    m_soundOffSprite: sf::Sprite
+    m_skipTexture: sf::Texture
+    m_skipSprite: sf::Sprite
+    m_soundBuffer: sf::SoundBuffer[SOUNDS]
+    m_sound: sf::Sound[SOUNDS]
+    m_font: sf::Font
+    m_storyTexture: sf::Texture[STORY_SCREENS]
+    m_storySprite: sf::Sprite[STORY_SCREENS]
+    m_storyInfoIconTexture: sf::Texture
+    m_storyInfoIconSprite: sf::Sprite
+}
+
+class Board {
+    Board(Mouse& mouse, std::vector<std::unique_ptr<Cat>>&, const int&)
+    sf::Vector2f getBoardSize()
+    void drawBoard(sf::RenderWindow& window)
+    void readLevel(Mouse& mouse, std::vector<std::unique_ptr<Cat>>&, const int&)
+    void setMouse(Mouse& mouse, sf::Vector2f position)
+    void setCat(std::vector<std::unique_ptr<Cat>>& cats, sf::Vector2f position)
+    int getCheeseCounter() const
+    int getCatsNumber() const
+    NonMovable* getCharacters(sf::Vector2f position, Direction direction)
+    std::vector<std::vector<std::unique_ptr<NonMovable>>>& getMap()
+    bool checkOutOfMap(sf::Vector2f position)
+    sf::Time getTime() const
+    int getNumberOfLevel() const
+    std::vector<std::vector<sf::Vector3i>> bfsAlgo(sf::Vector2i)
+    std::vector<sf::Vector2i> search(const sf::Vector2i)
+    void openFile()
+    void setBoardSize()
+    void pushToMap(const char&, size_t&, size_t&, Mouse&, std::vector<std::unique_ptr<Cat>>&)
+    std::vector<std::vector<std::unique_ptr<NonMovable>>> m_board;
+    std::ifstream m_file
+    int m_row, m_col
+    sf::Time m_time
+    int m_numberOfLevel
+    int m_numberOfCats
+    int m_numberOfCheese
+}
+
+class Icon {
+    Icon()
+    ~Icon()
+    virtual void collide(Icon*) = 0
+    virtual void collide(Mouse*) = 0
+    virtual void collide(Cat*) = 0
+    virtual void collide(Cheese*) = 0
+    virtual void collide(Wall*) = 0
+    virtual void collide(Door*) = 0
+    virtual void collide(Key*) = 0
+    virtual void collide(Gift*) = 0
+    m_sprite: sf::Sprite
+}
+
+class Movable {
+    Movable()
+    draw(sf::RenderWindow&,float): void
+    getPosition(): sf::Vector2f
+    SetPosition(sf::Vector2f): void
+    getStartPosition(): sf::Vector2f
+    setStartPosition(sf::Vector2f): void
+    getDirection(): Direction
+    getNextDirection(Direction): sf::Vector2f
+    m_startPosition: sf::Vector2f
+    m_position: sf::Vector2f
+    m_direction: Direction
+    m_newDirection: Direction
+    m_previousPostion: sf::Vector2f
+    getCenter(position: sf::Vector2f): sf::Vector2f
+    isCentered(position: sf::Vector2f, centerPosition: sf::Vector2f): bool
+    outOfBoard(size: sf::Vector2f): bool
+    moveDirection(moveDistance: float): void
+}
+
+class NonMovable {
+    NonMovable()
+    bool getStatus() const
+    void setStatus(bool status)
+    sf::Vector2f getPosition()
+    void setPosition(sf::Vector2f)
+    virtual void draw(sf::RenderWindow&, sf::Vector2f)
+    virtual sf::FloatRect getGlobalBounds(): sf::FloatRect
+    virtual void collide(Cheese*)
+    virtual void collide(Wall*)
+    virtual void collide(Door*)
+    virtual void collide(Key*)
+    virtual void collide(Gift*)
+    bool m_status
+    sf::Vector2f m_position
+}
+
+class Mouse {
+    Mouse()
+  	void setDirection(sf::Keyboard::Key direction)
+  	void move(float passedTime, sf::Vector2f boardSize)
+  	bool getMouseState() const;
+  	void setMouseState()
+  	int getScore() const
+  	void setScore(const int&)
+  	int getLife()const
+  	void setLife(const int&)
+  	int getKeysNumber() const
+  	void setKeysNumber(const int&)
+  	int getMoreTime()const
+  	int getCheeseCounter()const
+  	void setCheeseCounter(const int&)
+  	void decTimerCatsStop()
+  	int getTimerCatsStop()const
+  	void setStoppingPower(const bool&)
+  	bool getStoppingPower()const;
+  	virtual void collide(Icon*) 
+  	virtual void collide(Mouse*) 
+  	virtual void collide(Cat*)
+  	virtual void collide(Cheese*)
+  	virtual void collide(Wall*)
+  	virtual void collide(Door*)
+  	virtual void collide(Key*)
+	  virtual void collide(Gift*)
+    int m_score = 0
+  	int m_life = 3
+  	int m_numberKeys = 0
+  	int m_moreTime = 0
+  	int m_countCheese = 0
+  	int m_timerCatsStop = 0
+  	bool m_isArrested = false
+  	bool m_stoppingPower = false
+}
+
+class Cat {
+    Cat()
+    virtual void move(passedTime: float, boardSize: sf::Vector2f, Tree: const std::vector<std::vector<sf::Vector3i>>&)
+    virtual void collide(Icon*)
+    virtual void collide(Mouse*)
+    virtual void collide(Cat*)
+    virtual void collide(Cheese*)
+    virtual void collide(Wall*)
+    virtual void collide(Door*)
+    virtual void collide(Key*)
+    virtual void collide(Gift*)
+    bool m_moving
+    bool m_wallCollision
+    bool m_doorCollision
+}
+
+class SmartCat {
+    SmartCat()
+    void move(float, sf::Vector2f, const std::vector<std::vector<sf::Vector3i>>&)
+    Direction getBfsMove(const sf::Vector2i&, const sf::Vector2i&)
+}
+
+class RandomCat {
+    RandomCat()
+    void move(float, sf::Vector2f, const std::vector<std::vector<sf::Vector3i>>&)
+    Direction getRandomDirection();
+}
+
+class Cheese {
+    Cheese()
+    virtual void collide(Icon*)
+     virtual void collide(Mouse*)
+     virtual void collide(Cat*)
+    sf::Sprite m_sprite
+}
+
+class Door {
+    Door()
+    virtual void collide(Icon*)
+    virtual void collide(Mouse*)
+    virtual void collide(Cat*)
+    sf::Sprite m_sprite 
+}
+
+class Wall {
+    Wall()
+    virtual void collide(Icon*)
+    virtual void collide(Mouse*)
+    virtual void collide(Cat*)
+    void draw(sf::RenderWindow&, sf::Vector2f)
+}
+
+class Gift {
+    Gift()
+    virtual void collide(Icon*)
+    virtual void collide(Mouse*)
+    virtual void collide(Cat*)
+    TypeGift getType()
+    TypeGift m_typegift
+}
+
+class HeartGift {
+    HeartGift()
+}
+
+class TimeGift {
+    TimeGift()
+}
+
+class HideCatGift {
+    HideCatGift()
+}
+
+class Key {
+    Key()
+    virtual void collide(Icon*)
+    virtual void collide(Mouse*)
+    virtual void collide(Cat*)
+    sf::Sprite m_sprite 
+}
+
+class LevelStatus {
+    LevelStatus()
+    void draw(sf::RenderWindow&, int, int, int, int, sf::Vector2f, sf::Font)
+    sf::Text m_statusBar
+    sf::Texture m_lifeTexture
+    sf::Sprite m_lifeSprite
+}
+
+Icon <|-- NonMovable
+Icon <|-- Movable
+
+Movable <|-- Mouse
+Movable <|-- Cat
+
+Cat <|-- RandomCat
+Cat <|-- SmartCat
+
+NonMovable <|-- Gift
+NonMovable <|-- Door
+NonMovable <|-- Key
+NonMovable <|-- Wall
+
+Gift <|-- HeartGift
+Gift <|-- HideCatGift
+Gift <|-- TimeGift
+
+@enduml
